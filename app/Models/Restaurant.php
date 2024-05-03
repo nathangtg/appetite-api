@@ -18,6 +18,7 @@ class Restaurant extends Model
      */
 
     protected $fillable = [
+        'admin_id',
         'name',
         'description',
         'address',

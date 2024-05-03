@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\RestaurantController;
 use App\Http\Controllers\UserController;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
@@ -27,4 +28,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::delete('delete/users/{id}', [UserController::class, 'destroy']);
 
     // * Restaurant CRUD
+    Route::get('restaurants', [RestaurantController::class, 'index']);
+    Route::get('restaurants/{id}', [RestaurantController::class, 'show']);
+    Route::post('create/restaurants', [RestaurantController::class, 'store']);
+    Route::put('update/restaurants/{id}', [RestaurantController::class, 'update']);
+    Route::delete('delete/restaurants/{id}', [RestaurantController::class, 'destroy']);
+
 });
