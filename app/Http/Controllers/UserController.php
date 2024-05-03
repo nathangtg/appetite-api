@@ -14,18 +14,36 @@ class UserController extends Controller
      */
     public function index()
     {
-        // Get all users
-        $users = User::all();
+
+        // ! Check if the user is an admin
+        if (Auth::user()->account_type !== 'user') {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        } else {
+            $users = User::all();
+        }
+
         return $users;
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(User $user)
+    public function show(Request $request)
     {
-        // Display the user
-        return $user;
+        // Check if the user is authenticated
+        if ($request->user()) {
+            // Get the user ID from the request parameters
+            $id = $request->route('id');
+
+            // Check if the ID from the request parameters matches the authenticated user's ID
+            if ($request->user()->id == $id) {
+                // If the IDs match, return the user ID
+                return $request->user();
+            }
+        }
+
+        // If the user is not authenticated or the IDs don't match, return an error response
+        return response()->json(['error' => 'Unauthorized'], 403);
     }
 
     /**
@@ -71,10 +89,22 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(User $user)
+    public function destroy(Request $request)
     {
-        // Delete the user
-        $user->delete();
-        return response()->json(null, 204);
+        // Check if the user is authenticated
+        if ($request->user()) {
+            // Get the user ID from the request parameters
+            $id = $request->route('id');
+
+            // Check if the ID from the request parameters matches the authenticated user's ID
+            if ($request->user()->id == $id) {
+                // If the IDs match, delete the user
+                User::destroy($id);
+                return response()->json(null, 204);
+            }
+        }
+
+        // If the user is not authenticated or the IDs don't match, return an unauthorized response
+        return response()->json(['error' => 'Unauthorized'], 403);
     }
 }
