@@ -12,8 +12,11 @@ class OrderedItems extends Model
     use HasFactory, Notifiable, HasApiTokens;
 
     protected $fillable = [
+        'order_id',
+        'menu_id',
         'quantity',
         'price',
+        'total',
     ];
 
     public function menu()

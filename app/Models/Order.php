@@ -12,14 +12,12 @@ class Order extends Model
     use HasFactory, Notifiable, HasApiTokens;
 
     protected $fillable = [
-        'status',
+        'restaurant_id',
+        'user_id',
+        'email',
         'total',
-        'address',
-        'phone',
-        'payment_method',
-        'payment_status',
+        'status',
         'order_type',
-        'note',
     ];
 
     public function user()

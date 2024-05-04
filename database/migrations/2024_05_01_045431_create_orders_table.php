@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('email');
             $table->decimal('total', 8, 2);
             $table->string('status');
+            $table->enum('order_type', ['dine-in', 'takeaway'])->default('takeaway');
             $table->timestamps();
         });
     }

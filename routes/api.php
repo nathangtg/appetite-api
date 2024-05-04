@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\MenuController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\RestaurantController;
 use App\Http\Controllers\UserController;
 use Illuminate\Auth\Events\Registered;
@@ -33,5 +35,19 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('create/restaurants', [RestaurantController::class, 'store']);
     Route::put('update/restaurants/{id}', [RestaurantController::class, 'update']);
     Route::delete('delete/restaurants/{id}', [RestaurantController::class, 'destroy']);
+
+    // * Menu CRUD
+    Route::get('menus/{restaurant_id}', [MenuController::class, 'index']);
+    Route::get('menus/{restaurant_id}/{id}', [MenuController::class, 'show']);
+    Route::post('menus/{restaurant_id}/create', [MenuController::class, 'store']);
+    Route::put('menus/{restaurant_id}/{id}/update', [MenuController::class, 'update']);
+    Route::delete('menus/{restaurant_id}/{id}/delete', [MenuController::class, 'destroy']);
+
+    // * Order CRUD
+    Route::get('orders/{restaurant_id}', [OrderController::class, 'index']);
+    Route::get('orders/{restaurant_id}/{id}', [OrderController::class, 'show']);
+    Route::post('orders/{restaurant_id}/create', [OrderController::class, 'store']);
+    Route::put('orders/{restaurant_id}/{id}/update', [OrderController::class, 'update']);
+    Route::delete('orders/{restaurant_id}/{id}/delete', [OrderController::class, 'destroy']);
 
 });
