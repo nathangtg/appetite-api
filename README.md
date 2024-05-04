@@ -1,66 +1,76 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# API README
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This system was built and developed using the Laravel framework version 11.X with its supportive environments
+such as Sanctums, Middlewares, Laravel and Blade syntax.
+On top of that this system is also highly usable in a relational database scheme as everything declared has a relationship.
+This API also uses database authentication as its auth driver to enhance security and ease of use
 
-## About Laravel
+## Introduction
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+This API serves as the backbone for a comprehensive food ordering system, offering a range of endpoints to facilitate user authentication, user management, restaurant operations, menu handling, and order processing. Built with Laravel, it leverages Sanctum for secure user authentication via token-based authorization.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Features
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+-   **User Authentication**: Users can register and log in securely, with passwords hashed for enhanced security.
+-   **User Management**: CRUD (Create, Read, Update, Delete) operations are available for managing user accounts. Users can view their own data and update or delete their accounts as needed.
 
-## Learning Laravel
+-   **Restaurant Operations**: Restaurant entities can be created, updated, and deleted. Each restaurant has associated menus and orders.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+-   **Menu Management**: Menus for each restaurant can be created, updated, and deleted. Users can retrieve lists of available menus for specific restaurants.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+-   **Order Processing**: Users can place orders at specific restaurants, with options to create, update, and delete orders. Additionally, users can view their own order history.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Endpoints
 
-## Laravel Sponsors
+-   **Authentication**:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+    -   `POST /auth/register`: Register a new user.
+    -   `POST /auth/login`: Log in a user.
 
-### Premium Partners
+-   **User Management**:
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+    -   `GET /users`: Retrieve a list of users.
+    -   `GET /users/{id}`: Retrieve a specific user's details.
+    -   `PUT /update/users/{id}`: Update a user's information.
+    -   `DELETE /delete/users/{id}`: Delete a user's account.
 
-## Contributing
+-   **Restaurant Operations**:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+    -   `GET /restaurants`: Retrieve a list of restaurants.
+    -   `GET /restaurants/{id}`: Retrieve details of a specific restaurant.
+    -   `POST /create/restaurants`: Create a new restaurant.
+    -   `PUT /update/restaurants/{id}`: Update restaurant information.
+    -   `DELETE /delete/restaurants/{id}`: Delete a restaurant.
 
-## Code of Conduct
+-   **Menu Management**:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+    -   `GET /menus/{restaurant_id}`: Retrieve menus for a specific restaurant.
+    -   `GET /menus/{restaurant_id}/{id}`: Retrieve details of a specific menu.
+    -   `POST /menus/{restaurant_id}/create`: Create a new menu for a restaurant.
+    -   `PUT /menus/{restaurant_id}/{id}/update`: Update a menu.
+    -   `DELETE /menus/{restaurant_id}/{id}/delete`: Delete a menu.
 
-## Security Vulnerabilities
+-   **Order Processing**:
+    -   `GET /orders/{restaurant_id}`: Retrieve orders for a specific restaurant.
+    -   `GET /orders/{restaurant_id}/{id}`: Retrieve details of a specific order.
+    -   `GET /orders`: Retrieve the order history of the current user.
+    -   `POST /orders/{restaurant_id}/create`: Place a new order.
+    -   `PUT /orders/{restaurant_id}/{id}/update`: Update an existing order.
+    -   `DELETE /orders/{restaurant_id}/{id}/delete`: Delete an order.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Usage
 
-## License
+1. **Authentication**: Register a new user or log in using the provided endpoints to obtain an authentication token.
+2. **User Management**: Access user data, update details, or delete the account if needed.
+3. **Restaurant Operations**: Manage restaurants, including creation, update, and deletion.
+4. **Menu Management**: Create, update, or delete menus for restaurants.
+5. **Order Processing**: Place orders, update existing orders, or view order history.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Security
+
+-   User passwords are securely hashed to protect sensitive information.
+-   Token-based authentication via Sanctum ensures secure access to endpoints.
+
+## Conclusion
+
+This API provides a robust foundation for building a food ordering platform, offering comprehensive functionality for user authentication, restaurant management, menu handling, and order processing. With its intuitive endpoints and secure authentication mechanisms, developers can seamlessly integrate this API into their applications to deliver a seamless food ordering experience for users.
