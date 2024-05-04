@@ -17,9 +17,6 @@ class MenuController extends Controller
     {
         // Check if the authenticated user is the admin of the specified restaurant
         $user = Auth::user();
-        if (!$user || $user->account_type !== 'restaurant') {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
 
         $restaurant = Restaurant::find($restaurant_id);
         if (!$restaurant || $restaurant->admin_id !== $user->id) {
@@ -80,9 +77,25 @@ class MenuController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Menu $menu)
+    public function show(Request $request, Menu $menu)
     {
-        //
+        // Get the restaurant_id and id from the route parameters
+        $restaurantId = $request->route('restaurant_id');
+        $menuId = $request->route('id');
+
+        // Find the menu by id and restaurant_id
+        $menu = Menu::where('id', $menuId)
+                    ->where('restaurant_id', $restaurantId)
+                    ->first();
+
+        if (!$menu) {
+            return response()->json(['error' => 'Menu not found'], 404);
+        }
+
+        // Return the menu
+        return response()->json(['menu' => $menu], 200);
+
+
     }
 
     /**
