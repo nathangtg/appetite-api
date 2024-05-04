@@ -50,6 +50,8 @@ class OrderController extends Controller
                 'email' => 'required',
                 'status' => 'required',
                 'order_type' => 'required',
+                'payment_method' => 'required',
+                'payment_status' => 'required',
                 'items' => 'required|array|min:1',
                 'items.*.menu_id' => 'required|exists:menus,id',
                 'items.*.quantity' => 'required|integer|min:1',
@@ -75,6 +77,8 @@ class OrderController extends Controller
                 'total' => $total,
                 'status' => $request->input('status'),
                 'order_type' => $request->input('order_type'),
+                'payment_method' => $request->input('payment_method'),
+                'payment_status' => $request->input('payment_status'),
             ]);
 
             // If no items are sent, return an error
@@ -183,6 +187,8 @@ class OrderController extends Controller
             'total' => 'sometimes|required',
             'status' => 'sometimes|required',
             'order_type' => 'sometimes|required',
+            'payment_method' => 'sometimes|required',
+            'payment_status' => 'sometimes|required',
         ]);
 
         // Check if validation fails
@@ -205,6 +211,14 @@ class OrderController extends Controller
 
         if ($request->has('order_type')) {
             $order->order_type = $request->input('order_type');
+        }
+
+        if ($request->has('payment_method')) {
+            $order->payment_method = $request->input('payment_method');
+        }
+
+        if ($request->has('payment_status')) {
+            $order->payment_status = $request->input('payment_status');
         }
 
         // Save the changes to the order

@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\RestaurantController;
+use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
@@ -50,5 +51,4 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('orders/{restaurant_id}/create', [OrderController::class, 'store']);
     Route::put('orders/{restaurant_id}/{id}/update', [OrderController::class, 'update']);
     Route::delete('orders/{restaurant_id}/{id}/delete', [OrderController::class, 'destroy']);
-
 });
