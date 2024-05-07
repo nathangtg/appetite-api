@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->text('description');
             $table->string('address');
+            $table->string('image_path')->nullable();
             $table->integer('preparation_time');
             $table->string('cuisine');
             $table->string('price_range');

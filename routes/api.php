@@ -12,43 +12,45 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function () {
-    Route::post('register', [RegisteredUserController::class, 'store']);
-    Route::post('login', [AuthenticatedSessionController::class, 'store']);
+Route::post('register', [RegisteredUserController::class, 'store']);
+Route::post('login', [AuthenticatedSessionController::class, 'store']);
+
 });
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
-    return $request->user();
+return $request->user();
 });
 
 Route::middleware(['auth:sanctum'])->group(function () {
-    // ! Deauthentication
-    Route::post('logout', [AuthenticatedSessionController::class, 'destroy']);
+// ! Deauthentication
+Route::post('logout', [AuthenticatedSessionController::class, 'destroy']);
 
-    // * User OWN CRUD
-    Route::get('users', [UserController::class, 'index']);
-    Route::get('users/{id}', [UserController::class, 'show']);
-    Route::put('update/users/{id}', [UserController::class, 'update']);
-    Route::delete('delete/users/{id}', [UserController::class, 'destroy']);
+// * User OWN CRUD
+Route::get('users', [UserController::class, 'index']);
+Route::get('users/{id}', [UserController::class, 'show']);
+Route::put('update/users/{id}', [UserController::class, 'update']);
+Route::delete('delete/users/{id}', [UserController::class, 'destroy']);
 
-    // * Restaurant CRUD
-    Route::get('restaurants', [RestaurantController::class, 'index']);
-    Route::get('restaurants/{id}', [RestaurantController::class, 'show']);
-    Route::post('create/restaurants', [RestaurantController::class, 'store']);
-    Route::put('update/restaurants/{id}', [RestaurantController::class, 'update']);
-    Route::delete('delete/restaurants/{id}', [RestaurantController::class, 'destroy']);
+// * Restaurant CRUD
+Route::get('restaurants', [RestaurantController::class, 'index']);
+Route::get('restaurants/{id}', [RestaurantController::class, 'show']);
+Route::post('create/restaurants', [RestaurantController::class, 'store']);
+Route::put('update/restaurants/{id}', [RestaurantController::class, 'update']);
+Route::delete('delete/restaurants/{id}', [RestaurantController::class, 'destroy']);
+Route::post('upload/restaurants/{id}', [RestaurantController::class, 'upload']);
 
-    // * Menu CRUD
-    Route::get('menus/{restaurant_id}', [MenuController::class, 'index']);
-    Route::get('menus/{restaurant_id}/{id}', [MenuController::class, 'show']);
-    Route::post('menus/{restaurant_id}/create', [MenuController::class, 'store']);
-    Route::put('menus/{restaurant_id}/{id}/update', [MenuController::class, 'update']);
-    Route::delete('menus/{restaurant_id}/{id}/delete', [MenuController::class, 'destroy']);
+// * Menu CRUD
+Route::get('menus/{restaurant_id}', [MenuController::class, 'index']);
+Route::get('menus/{restaurant_id}/{id}', [MenuController::class, 'show']);
+Route::post('menus/{restaurant_id}/create', [MenuController::class, 'store']);
+Route::put('menus/{restaurant_id}/{id}/update', [MenuController::class, 'update']);
+Route::delete('menus/{restaurant_id}/{id}/delete', [MenuController::class, 'destroy']);
 
-    // * Order CRUD
-    Route::get('orders/{restaurant_id}', [OrderController::class, 'index']);
-    Route::get('orders/{restaurant_id}/{id}', [OrderController::class, 'show']);
-    Route::get('orders', [OrderController::class, 'userOrders']);
-    Route::post('orders/{restaurant_id}/create', [OrderController::class, 'store']);
-    Route::put('orders/{restaurant_id}/{id}/update', [OrderController::class, 'update']);
-    Route::delete('orders/{restaurant_id}/{id}/delete', [OrderController::class, 'destroy']);
+// * Order CRUD
+Route::get('orders/{restaurant_id}', [OrderController::class, 'index']);
+Route::get('orders/{restaurant_id}/{id}', [OrderController::class, 'show']);
+Route::get('orders', [OrderController::class, 'userOrders']);
+Route::post('orders/{restaurant_id}/create', [OrderController::class, 'store']);
+Route::put('orders/{restaurant_id}/{id}/update', [OrderController::class, 'update']);
+Route::delete('orders/{restaurant_id}/{id}/delete', [OrderController::class, 'destroy']);
 });

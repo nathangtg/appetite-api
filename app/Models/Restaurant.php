@@ -22,6 +22,7 @@ class Restaurant extends Model
         'name',
         'description',
         'address',
+        'image_path',
         'preparation_time',
         'cuisine',
         'price_range',

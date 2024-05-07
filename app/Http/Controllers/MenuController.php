@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Menu;
 use App\Models\Restaurant;
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class MenuController extends Controller
@@ -40,7 +42,6 @@ class MenuController extends Controller
             // Check if the authenticated user is the admin of the specified restaurant
             $user_id = Auth::id();
             $isAdmin = Restaurant::where('id', $restaurant_id)->where('admin_id', $user_id)->exists();
-
             if (!$isAdmin) {
                 return response()->json(['error' => 'Only restaurant admins can create menus for their restaurants'], 403);
             }
@@ -50,7 +51,7 @@ class MenuController extends Controller
                 'name' => 'required',
                 'description' => 'required',
                 'price' => 'required',
-                'image' => 'required',
+                'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
 
             // Check if validation fails
@@ -58,14 +59,18 @@ class MenuController extends Controller
                 return response()->json(['error' => $validator->errors()], 422);
             }
 
+            // Prepare data for creating the menu
+            $data = $request->only(['name', 'description', 'price']);
+
+            // Handle image upload
+            if ($request->hasFile('image')) {
+                // Upload new image
+                $imagePath = $request->file('image')->store('public/menus');
+                $data['image'] = $imagePath;
+            }
+
             // Create the menu
-            $menu = Menu::create([
-                'restaurant_id' => $restaurant_id,
-                'name' => $request->name,
-                'description' => $request->description,
-                'price' => $request->price,
-                'image' => $request->image,
-            ]);
+            $menu = Menu::create(array_merge($data, ['restaurant_id' => $restaurant_id]));
 
             // Return a success response
             return response()->json(['menu' => $menu], 201);
@@ -203,5 +208,33 @@ class MenuController extends Controller
 
         // Return a success response
         return response()->json(['message' => 'Menu deleted successfully'], 200);
+    }
+
+    public function upload(Request $request) {
+        // Retrieve the restaurant_id from the route parameters
+        $id = $request->route('id');
+
+        // Retrieve the restaurant based on the provided restaurant_id ($id)
+        $restaurant = Restaurant::findOrFail($id);
+
+        // Check if the authenticated user is the admin of the restaurant
+        if ($restaurant->admin_id === auth()->user()->id) {
+            // Upload the image
+            $imagePath = $request->file('image')->store('public');
+
+
+            // Update the restaurant with the new image path
+            $restaurant->image_path = $imagePath;
+            $restaurant->save();
+
+            // Return a success response
+            return response()->json([
+                'message' => 'Image uploaded successfully',
+                'restaurant' => $restaurant->refresh(), // Refresh the restaurant instance to get the updated values
+            ], 200);
+        }
+
+        // If the user is not authorized, return an error response
+        return response()->json(['error' => 'Unauthorized'], 403);
     }
 }
