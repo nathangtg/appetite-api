@@ -50,6 +50,8 @@ class RestaurantController extends Controller
             $imagePath = $request->file('image_path')->store('public/restaurants');
         }
 
+        Log::info($imagePath);
+
         // Check if the user is authorized to create a restaurant
         if ($user && $user->account_type === 'restaurant') {
             // Create the restaurant with admin_id set to the authenticated user's ID
