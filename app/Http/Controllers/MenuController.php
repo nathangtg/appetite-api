@@ -17,21 +17,18 @@ class MenuController extends Controller
      */
     public function index($restaurant_id)
     {
-        // Check if the authenticated user is the admin of the specified restaurant
-        $user = Auth::user();
-
-        $restaurant = Restaurant::find($restaurant_id);
-        if (!$restaurant || $restaurant->admin_id !== $user->id) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
-
         // Retrieve all menus for the specified restaurant
         $menus = Menu::where('restaurant_id', $restaurant_id)->get();
+
+        // Transform the menu items to include the full URL of the image
+        $menus->transform(function ($menu) {
+            $menu->menuImage = url($menu->image);
+            return $menu;
+        });
 
         // Return the menus as JSON response
         return response()->json(['menus' => $menus], 200);
     }
-
     /**
      * Store a newly created resource in storage.
      */
@@ -66,6 +63,7 @@ class MenuController extends Controller
             if ($request->hasFile('image')) {
                 // Upload new image
                 $imagePath = $request->file('image')->store('public/menus');
+                $imagePath = url(Storage::url($imagePath));
                 $data['image'] = $imagePath;
             }
 

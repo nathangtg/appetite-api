@@ -11,10 +11,13 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+// ! Index Route
+Route::get('/restaurants', [RestaurantController::class, 'index']);
+Route::get('/menus/{restaurant_id}', [MenuController::class, 'index']);
+
 Route::prefix('auth')->group(function () {
 Route::post('register', [RegisteredUserController::class, 'store']);
 Route::post('login', [AuthenticatedSessionController::class, 'store']);
-
 });
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
@@ -32,7 +35,7 @@ Route::put('update/users/{id}', [UserController::class, 'update']);
 Route::delete('delete/users/{id}', [UserController::class, 'destroy']);
 
 // * Restaurant CRUD
-Route::get('restaurants', [RestaurantController::class, 'index']);
+// Route::get('restaurants', [RestaurantController::class, 'index']);
 Route::get('restaurants/{id}', [RestaurantController::class, 'show']);
 Route::post('create/restaurants', [RestaurantController::class, 'store']);
 Route::put('update/restaurants/{id}', [RestaurantController::class, 'update']);
@@ -40,7 +43,7 @@ Route::delete('delete/restaurants/{id}', [RestaurantController::class, 'destroy'
 Route::post('upload/restaurants/{id}', [RestaurantController::class, 'upload']);
 
 // * Menu CRUD
-Route::get('menus/{restaurant_id}', [MenuController::class, 'index']);
+// Route::get('menus/{restaurant_id}', [MenuController::class, 'index']);
 Route::get('menus/{restaurant_id}/{id}', [MenuController::class, 'show']);
 Route::post('menus/{restaurant_id}/create', [MenuController::class, 'store']);
 Route::put('menus/{restaurant_id}/{id}/update', [MenuController::class, 'update']);

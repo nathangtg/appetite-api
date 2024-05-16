@@ -45,12 +45,14 @@ class RestaurantController extends Controller
         // Get the authenticated user
         $user = $request->user();
 
+        // Set the image path to null by default
+        $imagePath = null;
+
         // Check Image Upload
         if ($request->hasFile('image_path')) {
             $imagePath = $request->file('image_path')->store('public/restaurants');
+            $imagePath = url(Storage::url($imagePath));
         }
-
-        Log::info($imagePath);
 
         // Check if the user is authorized to create a restaurant
         if ($user && $user->account_type === 'restaurant') {
@@ -233,9 +235,8 @@ class RestaurantController extends Controller
             }
 
             // Handle image upload
-            $filesystem = new Filesystem();
-            $filesystem->makeDirectory(Storage::path('public/restaurants'), 0755, true);
-            $imagePath = $request->file('image_path')->store('public');
+            $imagePath = $request->file('image_path')->store('public/restaurants');
+            $imagePath = Storage::url($imagePath);
 
             // Update the restaurant with the new image path
             $restaurant->image_path = $imagePath;

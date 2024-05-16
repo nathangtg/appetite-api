@@ -37,8 +37,6 @@ return new class extends Migration
             $table->timestamps();
             $table->primary(['id', 'admin_id']);
         });
-
-        DB::statement("ALTER TABLE restaurants ADD CONSTRAINT cuisines_enum_constraint CHECK (JSON_VALUE(cuisines, '$[*]') IN ('malay', 'chinese', 'indian', 'thai', 'western', 'indonesian', 'japanese', 'korean', 'middle-eastern', 'fusion', 'other'))");
     }
 
     /**
