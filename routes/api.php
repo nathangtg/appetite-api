@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 // ! Index Route
 Route::get('/restaurants', [RestaurantController::class, 'index']);
 Route::get('/menus/{restaurant_id}', [MenuController::class, 'index']);
+Route::get('restaurants/{id}', [RestaurantController::class, 'show']);
 
 Route::prefix('auth')->group(function () {
 Route::post('register', [RegisteredUserController::class, 'store']);
@@ -36,7 +37,6 @@ Route::delete('delete/users/{id}', [UserController::class, 'destroy']);
 
 // * Restaurant CRUD
 // Route::get('restaurants', [RestaurantController::class, 'index']);
-Route::get('restaurants/{id}', [RestaurantController::class, 'show']);
 Route::post('create/restaurants', [RestaurantController::class, 'store']);
 Route::put('update/restaurants/{id}', [RestaurantController::class, 'update']);
 Route::delete('delete/restaurants/{id}', [RestaurantController::class, 'destroy']);

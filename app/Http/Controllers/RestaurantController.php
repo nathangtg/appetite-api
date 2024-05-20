@@ -82,35 +82,21 @@ class RestaurantController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Request $request, Restaurant $restaurant)
+    public function show(Request $request, $id)
     {
-        // Get restaurant_id from the route parameters
-        $restaurant_id = $request->route('id');
+        // Find the restaurant by ID
+        $restaurant = Restaurant::find($id);
 
-        // Ensure the user is authenticated
-        if (auth()->check()) {
-            // Check if the requested restaurant exists
-            $requestedRestaurant = Restaurant::find($restaurant_id);
-
-            // If the requested restaurant exists
-            if ($requestedRestaurant) {
-                // Check if the authenticated user is the admin of the requested restaurant
-                if ($requestedRestaurant->admin_id === auth()->user()->id) {
-                    // Return the requested restaurant
-                    return response()->json($requestedRestaurant, 200);
-                } else {
-                    // If the authenticated user is not the admin of the requested restaurant, return an error response
-                    return response()->json(['error' => 'Unauthorized'], 403);
-                }
-            } else {
-                // If the requested restaurant does not exist, return a not found response
-                return response()->json(['error' => 'Restaurant not found'], 404);
-            }
+        // Check if the restaurant exists
+        if ($restaurant) {
+            // Return the requested restaurant
+            return response()->json($restaurant, 200);
         } else {
-            // If the user is not authenticated, return an error response
-            return response()->json(['error' => 'Unauthorized'], 401);
+            // If the requested restaurant does not exist, return a not found response
+            return response()->json(['error' => 'Restaurant not found'], 404);
         }
     }
+
 
 
     /**
