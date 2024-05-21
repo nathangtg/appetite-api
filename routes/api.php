@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\OrderedItemsController;
 use App\Http\Controllers\RestaurantController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
@@ -56,4 +57,12 @@ Route::get('orders', [OrderController::class, 'userOrders']);
 Route::post('orders/{restaurant_id}/create', [OrderController::class, 'store']);
 Route::put('orders/{restaurant_id}/{id}/update', [OrderController::class, 'update']);
 Route::delete('orders/{restaurant_id}/{id}/delete', [OrderController::class, 'destroy']);
+
+// * Order Items CRUD
+Route::get('order-items', [OrderedItemsController::class, 'index']);
+Route::get('order-items/{restaurant_id}', [OrderedItemsController::class, 'showByRestaurant']);
+Route::post('order-items/{restaurant_id}/create', [OrderedItemsController::class, 'store']);
+Route::put('order-items/{restaurant_id}/{order_id}/{id}/update', [OrderedItemsController::class, 'update']);
+Route::delete('order-items/{restaurant_id}/{order_id}/{id}/delete', [OrderedItemsController::class, 'destroy']);
+
 });

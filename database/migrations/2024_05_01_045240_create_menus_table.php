@@ -18,6 +18,7 @@ return new class extends Migration
             $table->text('description');
             $table->string('image');
             $table->decimal('price', 8, 2);
+            $table->enum('display', ['yes', 'no'])->default('yes');
             $table->timestamps();
         });
     }
