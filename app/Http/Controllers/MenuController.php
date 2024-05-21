@@ -15,8 +15,11 @@ class MenuController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index($restaurant_id)
+    public function index($restaurant_id, Request $request)
     {
+        // Get restaurant id from the route parameters
+        $restaurant_id = $request->route('restaurant_id');
+
         // Retrieve all menus for the specified restaurant
         $menus = Menu::where('restaurant_id', $restaurant_id)->get();
 
@@ -29,6 +32,7 @@ class MenuController extends Controller
         // Return the menus as JSON response
         return response()->json(['menus' => $menus], 200);
     }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -97,8 +101,6 @@ class MenuController extends Controller
 
         // Return the menu
         return response()->json(['menu' => $menu], 200);
-
-
     }
 
     /**
@@ -138,6 +140,7 @@ class MenuController extends Controller
             'description' => 'sometimes|required',
             'price' => 'sometimes|required',
             'image' => 'sometimes|required',
+            'display' => 'sometimes|required',
         ]);
 
         if ($validator->fails()) {
@@ -159,6 +162,10 @@ class MenuController extends Controller
 
         if ($request->has('image')) {
             $menu->image = $request->input('image');
+        }
+
+        if ($request->has('display')) {
+            $menu->display = $request->input('display');
         }
 
         // Save the changes to the menu
@@ -232,7 +239,27 @@ class MenuController extends Controller
             ], 200);
         }
 
-        // If the user is not authorized, return an error response
+    // If the user is not authorized, return an error response
         return response()->json(['error' => 'Unauthorized'], 403);
+    }
+
+    public function clientIndex($restaurant_id, Request $request)
+    {
+        // Get restaurant id from the route parameters
+        $restaurant_id = $request->route('restaurant_id');
+
+        // Retrieve all menus for the specified restaurant and filter by displayed menus
+        $menus = Menu::where('restaurant_id', $restaurant_id)
+                     ->where('display', 'yes')
+                     ->get();
+
+        // Transform the menu items to include the full URL of the image
+        $menus->transform(function ($menu) {
+            $menu->menuImage = url($menu->image);
+            return $menu;
+        });
+
+        // Return the menus as JSON response
+        return response()->json(['menus' => $menus], 200);
     }
 }

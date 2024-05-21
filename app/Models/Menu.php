@@ -23,6 +23,7 @@ class Menu extends Model
         'description',
         'price',
         'image',
+        'display',
     ];
 
     public function restaurant()
