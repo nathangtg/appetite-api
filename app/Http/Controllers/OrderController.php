@@ -107,6 +107,7 @@ class OrderController extends Controller
     /**
      * Display the specified resource.
      */
+
     public function show(Request $request, Order $order)
     {
         // Get the restaurant_id and id from the route parameters
