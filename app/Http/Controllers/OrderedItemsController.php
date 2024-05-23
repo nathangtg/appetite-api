@@ -179,53 +179,60 @@ class OrderedItemsController extends Controller
         // Check if user is authenticated
         $user = Auth::user();
         $restaurant = $request->route('restaurant_id');
+        $order = $request->route('order_id');
+
+        // Get the user ID of the order
+        $order_placed = Order::find($order);
+        $user_order = $order_placed->user_id;
 
         // Find the restaurant
         $restaurant = Restaurant::find($restaurant);
 
         // Check if user is restaurant
-        if($user && $user->account_type  === 'restaurant') {
+        if($user && $user->account_type  === 'restaurant' || $user && $user->id === $user_order) {
 
             // Check if the user is the admin of the restaurant
-            if($user->id == $restaurant->admin_id) {
-                        // Get the specific ordered item to delete from the url
-        // Parameter should check Restaurant ID, Order ID, and Ordered Item ID
-        $order_id = $request->route('order_id');
-        $ordered_item_id = $request->route('id');
-        $restaurant_id = $request->route('restaurant_id');
+            // Or check if the user is the one who placed the order
+            if($user->id == $restaurant->admin_id || $user->id == $user_order) {
 
-        // Find the Order
-        $order = Order::where('restaurant_id', $restaurant_id)->where('id', $order_id)->first();
+                // Get the specific ordered item to delete from the url
+                // Parameter should check Restaurant ID, Order ID, and Ordered Item ID
+                $order_id = $request->route('order_id');
+                $ordered_item_id = $request->route('id');
+                $restaurant_id = $request->route('restaurant_id');
 
-        // Check if the order exists
-        // If order exists, find the specific ordered item
-        if ($order) {
-            $orderedItem = OrderedItems::where('order_id', $order->id)->where('id', $ordered_item_id)->first();
+                // Find the Order
+                $order = Order::where('restaurant_id', $restaurant_id)->where('id', $order_id)->first();
 
-            // Check if the ordered item exists
-            if ($orderedItem) {
-                // Delete the ordered item
-                $orderedItem->delete();
+                // Check if the order exists
+                // If order exists, find the specific ordered item
+                if ($order) {
+                    $orderedItem = OrderedItems::where('order_id', $order->id)->where('id', $ordered_item_id)->first();
 
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Ordered item deleted',
-                    'data' => $orderedItem
-                ], 200);
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Ordered item not found',
-                    'data' => null
-                ], 404);
-            }
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'Order not found',
-                'data' => null
-            ], 404);
-        }
+                    // Check if the ordered item exists
+                    if ($orderedItem) {
+                        // Delete the ordered item
+                        $orderedItem->delete();
+
+                        return response()->json([
+                            'success' => true,
+                            'message' => 'Ordered item deleted',
+                            'data' => $orderedItem
+                        ], 200);
+                    } else {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Ordered item not found',
+                            'data' => null
+                        ], 404);
+                    }
+                } else {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Order not found',
+                        'data' => null
+                    ], 404);
+                }
             }
         }
 
