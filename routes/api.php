@@ -52,6 +52,7 @@ Route::post('upload/restaurants/{id}', [RestaurantController::class, 'upload']);
 Route::post('menus/{restaurant_id}/create', [MenuController::class, 'store']);
 Route::put('menus/{restaurant_id}/{id}/update', [MenuController::class, 'update']);
 Route::delete('menus/{restaurant_id}/{id}/delete', [MenuController::class, 'destroy']);
+Route::post('menus/{restaurant_id}/{id}/upload', [MenuController::class, 'upload']);
 
 // * Order CRUD
 Route::get('orders/{restaurant_id}', [OrderController::class, 'index']);

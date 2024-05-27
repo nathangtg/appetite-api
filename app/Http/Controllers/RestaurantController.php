@@ -222,7 +222,7 @@ class RestaurantController extends Controller
 
             // Handle image upload
             $imagePath = $request->file('image_path')->store('public/restaurants');
-            $imagePath = Storage::url($imagePath);
+            $imagePath = url(Storage::url($imagePath));
 
             // Update the restaurant with the new image path
             $restaurant->image_path = $imagePath;

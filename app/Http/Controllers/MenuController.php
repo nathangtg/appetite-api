@@ -162,6 +162,8 @@ class MenuController extends Controller
 
         if ($request->has('image')) {
             $menu->image = $request->input('image');
+            // Store the image in the public storage with global url
+            $menu->image = url(Storage::url($request->file('image')->store('public/menus')));
         }
 
         if ($request->has('display')) {
@@ -216,31 +218,56 @@ class MenuController extends Controller
     }
 
     public function upload(Request $request) {
-        // Retrieve the restaurant_id from the route parameters
-        $id = $request->route('id');
+        // Reetreive the restaurant_id and id from the route parameters
+        $restaurant_id = $request->route('restaurant_id');
+        $menu_id = $request->route('id');
 
-        // Retrieve the restaurant based on the provided restaurant_id ($id)
-        $restaurant = Restaurant::findOrFail($id);
+        // Validate if the authenticated user is the admin of the restaurant
+        $user = Auth::user();
 
-        // Check if the authenticated user is the admin of the restaurant
-        if ($restaurant->admin_id === auth()->user()->id) {
-            // Upload the image
-            $imagePath = $request->file('image')->store('public');
-
-
-            // Update the restaurant with the new image path
-            $restaurant->image_path = $imagePath;
-            $restaurant->save();
-
-            // Return a success response
-            return response()->json([
-                'message' => 'Image uploaded successfully',
-                'restaurant' => $restaurant->refresh(), // Refresh the restaurant instance to get the updated values
-            ], 200);
+        if (!$user || $user->account_type !== 'restaurant') {
+            return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-    // If the user is not authorized, return an error response
-        return response()->json(['error' => 'Unauthorized'], 403);
+        $restaurant = Restaurant::find($restaurant_id);
+
+        if (!$restaurant || $restaurant->admin_id !== $user->id) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        // Find the menu by id and restaurant_id
+        $menu = Menu::where('id', $menu_id)
+                    ->where('restaurant_id', $restaurant_id)
+                    ->first();
+
+        if (!$menu) {
+            return response()->json(['error' => 'Menu not found'], 404);
+        }
+
+        $rules = [
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ];
+
+        // Validate the request data
+        $validator = Validator::make($request->all(), $rules);
+
+        // Handle image upload
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 422);
+        }
+
+        // Upload the new image
+        $imagePath = $request->file('image')->store('public/menus');
+        $imagePath = url(Storage::url($imagePath));
+
+        // Update the menu with the new image path
+        $menu->image = $imagePath;
+
+        // Save the changes to the menu
+        $menu->save();
+
+        // Return a success response
+        return response()->json(['message' => 'Menu image uploaded successfully', 'menu' => $menu], 200);
     }
 
     public function clientIndex($restaurant_id, Request $request)
