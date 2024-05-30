@@ -238,4 +238,34 @@ class RestaurantController extends Controller
         // If the user is not authorized, return an error response
         return response()->json(['error' => 'Unauthorized'], 403);
     }
+
+    // ! Admin Fetch
+    public function adminIndex(Request $request) {
+        // Get the authenticated user
+        $user = $request->user();
+
+        // Check if the user is an admin
+        if ($user && $user->account_type === 'restaurant') {
+            // Return all restaurants that belong to the admin
+            return response()->json(Restaurant::where('admin_id', $user->id)->get(), 200);
+        }
+
+        // If the user is not authorized, return an error response
+        return response()->json(['error' => 'Unauthorized'], 403);
+    }
+
+    public function adminIndexID(Request $request, $restaurant_id) {
+        // Get the authenticated user
+        $user = $request->user();
+        $restaurant_id = $request->route('restaurant_id');
+
+        // Check if the user is an admin
+        if ($user && $user->account_type === 'restaurant') {
+            // Return the restaurant that belongs to the admin
+            return response()->json(Restaurant::where('admin_id', $user->id)->where('id', $restaurant_id)->get(), 200);
+        }
+
+        // If the user is not authorized, return an error response
+        return response()->json(['error' => 'Unauthorized'], 403);
+    }
 }

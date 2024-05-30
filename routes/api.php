@@ -69,4 +69,8 @@ Route::post('order-items/{restaurant_id}/create', [OrderedItemsController::class
 Route::put('order-items/{restaurant_id}/{order_id}/{id}/update', [OrderedItemsController::class, 'update']);
 Route::delete('order-items/{restaurant_id}/{order_id}/{id}/delete', [OrderedItemsController::class, 'destroy']);
 
+// ! Admin Indexes
+// * Restaurant
+Route::get('admin/restaurants', [RestaurantController::class, 'adminIndex']);
+Route::get('admin/restaurants/{restaurant_id}', [RestaurantController::class, 'adminIndexID']);
 });
