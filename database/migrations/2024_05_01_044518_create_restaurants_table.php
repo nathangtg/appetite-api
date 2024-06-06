@@ -35,9 +35,9 @@ return new class extends Migration
             ]);
             $table->string('price_range');
             $table->timestamps();
-            $table->primary(['id', 'admin_id']);
         });
     }
+
 
     /**
      * Reverse the migrations.
