@@ -47,7 +47,7 @@ Route::delete('delete/restaurants/{id}', [RestaurantController::class, 'destroy'
 Route::post('upload/restaurants/{id}', [RestaurantController::class, 'upload']);
 
 // * Menu CRUD
-// Route::get('menus/{restaurant_id}', [MenuController::class, 'index']);
+Route::get('menus/{restaurant_id}', [MenuController::class, 'index']);
 // Route::get('menus/{restaurant_id}/{id}', [MenuController::class, 'show']);
 Route::post('menus/{restaurant_id}/create', [MenuController::class, 'store']);
 Route::put('menus/{restaurant_id}/{id}/update', [MenuController::class, 'update']);
@@ -56,7 +56,7 @@ Route::post('menus/{restaurant_id}/{id}/upload', [MenuController::class, 'upload
 
 // * Order CRUD
 Route::get('orders/{restaurant_id}', [OrderController::class, 'index']);
-Route::get('orders/{restaurant_id}/{id}', [OrderController::class, 'show']);
+Route::get('orders/{restaurant_id}/{id}', [OrderController::class, 'getOrderAndItems']);
 Route::get('orders', [OrderController::class, 'userOrders']);
 Route::post('orders/{restaurant_id}/create', [OrderController::class, 'store']);
 Route::put('orders/{restaurant_id}/{id}/update', [OrderController::class, 'update']);

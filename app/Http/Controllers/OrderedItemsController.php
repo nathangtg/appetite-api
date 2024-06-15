@@ -131,7 +131,6 @@ class OrderedItemsController extends Controller
      */
     public function update(Request $request, OrderedItems $orderedItems)
     {
-        // Update the ordered item
         // Get the order ID from the URL
         $order_id = $request->route('order_id');
         $ordered_item_id = $request->route('id');
@@ -141,10 +140,23 @@ class OrderedItemsController extends Controller
 
         // Check if the ordered item exists
         if ($orderedItem) {
+            // Define the validation rules
+            $rules = [];
+
+            if ($request->has('quantity')) {
+                $rules['quantity'] = 'required|integer|min:1';
+            }
+
+            if ($request->has('status')) {
+                $rules['status'] = 'required|in:pending,completed,cancelled';
+            }
+
+            if ($request->has('note')) {
+                $rules['note'] = 'nullable|string'; // Changed 'text' to 'string'
+            }
+
             // Validate the request data for order creation
-            $validator = FacadesValidator::make($request->all(), [
-                'quantity' => 'required|integer|min:1',
-            ]);
+            $validator = FacadesValidator::make($request->all(), $rules);
 
             // Check if validation fails
             if ($validator->fails()) {
@@ -152,9 +164,20 @@ class OrderedItemsController extends Controller
             }
 
             // Update the ordered item
-            $orderedItem->quantity = $request->input('quantity');
-            $orderedItem->price = $request->input('price');
-            $orderedItem->total = $request->input('quantity') * $request->input('price');
+            if ($request->has('quantity')) {
+                $orderedItem->quantity = $request->input('quantity');
+                $orderedItem->price = $request->input('price'); // Ensure 'price' is present in the request when 'quantity' is updated
+                $orderedItem->total = $request->input('quantity') * $request->input('price');
+            }
+
+            if ($request->has('status')) {
+                $orderedItem->status = $request->input('status');
+            }
+
+            if ($request->has('note')) {
+                $orderedItem->note = $request->input('note');
+            }
+
             $orderedItem->save();
 
             return response()->json([
@@ -170,6 +193,7 @@ class OrderedItemsController extends Controller
             ], 404);
         }
     }
+
 
     /**
      * Remove the specified resource from storage.

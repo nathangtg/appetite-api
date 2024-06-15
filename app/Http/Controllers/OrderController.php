@@ -35,6 +35,8 @@ class OrderController extends Controller
         // Make sure the user is the admin of that restaurant
         $orders = Order::where('restaurant_id', $restaurant_id)->get();
 
+        // ALso get ordered item
+
         return response()->json(['orders' => $orders], 200);
     }
 
@@ -294,5 +296,53 @@ class OrderController extends Controller
         } else {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
+    }
+
+    // ! Get order and ordered items
+    public function getOrderAndItems(Request $request, Order $order)
+    {
+        // Get the restaurant_id and id from the route parameters
+        $restaurant_id = $request->route('restaurant_id');
+        $order_id = $request->route('id');
+
+        // Find the order by id and restaurant_id
+        $order = Order::where('id', $order_id)
+            ->where('restaurant_id', $restaurant_id)
+            ->first();
+
+        // Validate if the user is authenticated
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        // Check if the authenticated user is the owner of the order
+        if ($user->id !== $order->user_id) {
+            // Check if the authenticated user is a restaurant admin
+            if ($user->account_type === 'restaurant') {
+                // Check if the user is the admin of the order's restaurant
+                $restaurant = Restaurant::find($restaurant_id);
+
+                if (!$restaurant || $restaurant->admin_id !== $user->id) {
+                    return response()->json(['error' => 'Unauthorized'], 403);
+                }
+            }
+        }
+
+        if (!$order) {
+            return response()->json(['error' => 'Order not found'], 404);
+        }
+
+        // Get the ordered items for the order
+        $items = OrderedItems::where('order_id', $order->id)->get();
+
+        // Get the menu name for each ordered item
+        foreach ($items as $item) {
+            $item->menu_item = $item->menu->name;
+        }
+
+        // Return the order and ordered items
+        return response()->json(['order' => $order, 'items' => $items], 200);
     }
 }

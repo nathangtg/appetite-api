@@ -16,6 +16,8 @@ class OrderedItems extends Model
         'menu_id',
         'quantity',
         'price',
+        'status',
+        'note',
         'total',
     ];
 
