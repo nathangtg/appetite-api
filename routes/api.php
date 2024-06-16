@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\OrderController;
@@ -24,6 +26,10 @@ Route::prefix('auth')->group(function () {
 Route::post('register', [RegisteredUserController::class, 'store']);
 Route::post('login', [AuthenticatedSessionController::class, 'store']);
 });
+
+// ! Password Reset
+Route::post('forgot-password', [PasswordResetLinkController::class, 'store']);
+Route::post('reset-password', [NewPasswordController::class, 'store']);
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 return $request->user();

@@ -15,6 +15,17 @@ return new class extends Migration
             $table->id();
             $table->foreignId('restaurant_id')->references('id')->on('restaurants')->onDelete('cascade');
             $table->string('name');
+            $table->enum('category', [
+                'main_course',
+                'side_dish',
+                'appetizer',
+                'salad',
+                'dessert',
+                'drink',
+                'beverage',
+                'snack',
+                'breakfast',
+            ]);
             $table->text('description');
             $table->string('image');
             $table->decimal('price', 8, 2);
