@@ -44,6 +44,8 @@ class OrderedItemsController extends Controller
                 'items.*.menu_id' => 'required|exists:menus,id',
                 'items.*.quantity' => 'required|integer|min:1',
                 'items.*.price' => 'required|numeric|min:0',
+                'items.*.note' => 'nullable|string',
+                'items.*.status' => 'nullable|in:pending,completed,cancelled',
             ]);
 
             // Check if validation fails

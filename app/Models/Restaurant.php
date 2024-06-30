@@ -26,6 +26,8 @@ class Restaurant extends Model
         'preparation_time',
         'cuisine',
         'price_range',
+        'rating',
+        'is_open',
     ];
 
     public function user()

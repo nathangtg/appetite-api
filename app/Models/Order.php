@@ -11,6 +11,8 @@ class Order extends Model
 {
     use HasFactory, Notifiable, HasApiTokens;
 
+    protected $table = 'orders';
+
     protected $fillable = [
         'restaurant_id',
         'user_id',

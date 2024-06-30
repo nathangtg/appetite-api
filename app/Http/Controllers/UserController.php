@@ -64,6 +64,7 @@ class UserController extends Controller
             'name' => 'sometimes|string|max:255',
             'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
             'password' => 'sometimes|string|min:8',
+            'preferred_cuisine' => 'sometimes|string|max:255'
         ]);
 
         // Update the user's name, if provided
@@ -79,6 +80,11 @@ class UserController extends Controller
         // Update the user's password, if provided
         if (isset($validatedData['password'])) {
             $user->password = Hash::make($validatedData['password']);
+        }
+
+        // Update the user's preferred cuisine, if provided
+        if (isset($validatedData['preferred_cuisine'])) {
+            $user->preferred_cuisine = $validatedData['preferred_cuisine'];
         }
 
         // Save the updated user

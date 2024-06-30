@@ -50,6 +50,7 @@ class MenuController extends Controller
             // Validate the request data
             $validator = Validator::make($request->all(), [
                 'name' => 'required',
+                'category' => 'required',
                 'description' => 'required',
                 'price' => 'required',
                 'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -61,7 +62,7 @@ class MenuController extends Controller
             }
 
             // Prepare data for creating the menu
-            $data = $request->only(['name', 'description', 'price']);
+            $data = $request->only(['name', 'category', 'description', 'price']);
 
             // Handle image upload
             if ($request->hasFile('image')) {

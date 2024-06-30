@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use App\Models\Restaurant;
+use App\Models\User;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -79,6 +81,26 @@ class RestaurantController extends Controller
         return response()->json(['error' => 'You are not authorized to create a restaurant'], 403);
     }
 
+    public function recentOrderedRestaurants(Request $request, User $user) {
+        // Authenticate the user
+        $user = $request->user();
+
+        // Fetch the user ID
+        $userId = $user->id;
+
+        // Fetch the orders based on the user ID
+        $orders = Order::where('user_id', $userId)->get();
+
+        // Get the restaurant IDs from the orders
+        $restaurantIds = $orders->pluck('restaurant_id')->unique();
+
+        // Fetch the restaurants based on the restaurant IDs
+        $restaurants = Restaurant::whereIn('id', $restaurantIds)->get();
+
+        // Return the restaurants
+        return response()->json($restaurants, 200);
+    }
+
     /**
      * Display the specified resource.
      */
@@ -121,6 +143,8 @@ class RestaurantController extends Controller
                 'cuisine' => 'sometimes|required',
                 'price_range' => 'sometimes|required',
                 'image_path' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'is_open' => 'sometimes|boolean',
+                'rating' => 'sometimes|numeric',
             ];
 
             // Validate the request data based on the defined rules
@@ -133,7 +157,7 @@ class RestaurantController extends Controller
 
             // Update only the provided fields
             $data = $request->only([
-                'name', 'description', 'address', 'preparation_time', 'cuisine', 'price_range', 'image_path'
+                'name', 'description', 'address', 'preparation_time', 'cuisine', 'price_range', 'image_path', 'is_open', 'rating'
             ]);
 
             // Handle image upload
@@ -254,6 +278,7 @@ class RestaurantController extends Controller
         return response()->json(['error' => 'Unauthorized'], 403);
     }
 
+
     public function adminIndexID(Request $request, $restaurant_id) {
         // Get the authenticated user
         $user = $request->user();
@@ -267,5 +292,41 @@ class RestaurantController extends Controller
 
         // If the user is not authorized, return an error response
         return response()->json(['error' => 'Unauthorized'], 403);
+    }
+
+    public function giveRating(Request $request) {
+
+        if(Auth::user()->account_type !== 'customer') {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        // Retrieve the restaurant_id from the route parameters
+        $id = $request->route('id');
+
+        // Retrieve the restaurant based on the provided restaurant_id ($id)
+        $restaurant = Restaurant::findOrFail($id);
+
+        // Define validation rules for the request data
+        $rules = [
+            'rating' => 'required|numeric|min:0|max:5',
+        ];
+
+        // Validate the request data based on the defined rules
+        $validator = Validator::make($request->all(), $rules);
+
+        // Check if validation fails
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 422);
+        }
+
+        // Update the restaurant with the new rating
+        $restaurant->rating = $request->rating;
+        $restaurant->save();
+
+        // Return a success response
+        return response()->json([
+            'message' => 'Rating updated successfully',
+            'restaurant' => $restaurant->refresh(), // Refresh the restaurant instance to get the updated values
+        ], 200);
     }
 }

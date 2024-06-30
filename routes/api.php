@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderedItemsController;
+use App\Http\Controllers\RecommendationController;
 use App\Http\Controllers\RestaurantController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 
 // ! Index Route
 Route::get('/restaurants', [RestaurantController::class, 'index']);
-Route::get('/restaurants/{id}', [RestaurantController::class, 'show']);
+
 
 Route::get('/menus/{restaurant_id}/client', [MenuController::class, 'clientIndex']);
 Route::get('/menus/{restaurant_id}', [MenuController::class, 'index']);
@@ -46,11 +47,14 @@ Route::put('update/users/{id}', [UserController::class, 'update']);
 Route::delete('delete/users/{id}', [UserController::class, 'destroy']);
 
 // * Restaurant CRUD
+Route::get('restaurants/recents', [RestaurantController::class, 'recentOrderedRestaurants']);
 // Route::get('restaurants', [RestaurantController::class, 'index']);
 Route::post('create/restaurants', [RestaurantController::class, 'store']);
 Route::put('update/restaurants/{id}', [RestaurantController::class, 'update']);
 Route::delete('delete/restaurants/{id}', [RestaurantController::class, 'destroy']);
 Route::post('upload/restaurants/{id}', [RestaurantController::class, 'upload']);
+
+Route::put('rate/restaurants/{id}', [RestaurantController::class, 'giveRating']);
 
 // * Menu CRUD
 Route::get('menus/{restaurant_id}', [MenuController::class, 'index']);
@@ -79,4 +83,10 @@ Route::delete('order-items/{restaurant_id}/{order_id}/{id}/delete', [OrderedItem
 // * Restaurant
 Route::get('admin/restaurants', [RestaurantController::class, 'adminIndex']);
 Route::get('admin/restaurants/{restaurant_id}', [RestaurantController::class, 'adminIndexID']);
+
+// * RESTAURANTS CONTROLLER
+Route::get('recommendations', [RecommendationController::class, 'index']);
 });
+
+Route::get('/restaurants/{id}', [RestaurantController::class, 'show']);
+

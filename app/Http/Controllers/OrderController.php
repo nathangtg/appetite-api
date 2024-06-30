@@ -96,6 +96,7 @@ class OrderController extends Controller
                     'quantity' => $item['quantity'],
                     'price' => $item['price'],
                     'total' => $item['quantity'] * $item['price'],
+                    'note' => $item['note'] ?? '',
                 ]);
             }
 
@@ -169,9 +170,9 @@ class OrderController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        // Check if the authenticated user is the owner of the order
+        // Check if the authenticated user is the owner of the order or the admin of the restaurant
         if ($user->id !== $order->user_id) {
-            // Check if the authenticated user is a restaurant admin
+            // Check if the authenticated user is a restaurant admin or owner
             if ($user->account_type === 'restaurant') {
                 // Check if the user is the admin of the order's restaurant
                 $restaurant = Restaurant::find($restaurant_id);
