@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Restaurant;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class RecommendationController extends Controller
 {
@@ -15,9 +16,15 @@ class RecommendationController extends Controller
         // Get authenticated user
         $user = auth()->user();
 
-        // Fetch recommended restaurants based off cuisine and rating
-        $restaurants = Restaurant::where('cuisine', $user->preferred_cuisine)
-            ->where('rating', '>=', 4)
+        // Fetch the restaurants with the highest average rating in the preferred cuisine
+        $restaurants = Restaurant::select('restaurants.*')
+            ->leftJoin('ratings', 'restaurants.id', '=', 'ratings.restaurant_id')
+            ->where('restaurants.cuisine', $user->preferred_cuisine)
+            ->where('restaurants.is_open', true)
+            ->groupBy('restaurants.id')
+            ->havingRaw('COALESCE(AVG(ratings.rating), 0) >= ?', [1])
+            ->orderByRaw('COALESCE(AVG(ratings.rating), 0) DESC')
+            ->limit(5)
             ->get();
 
         return response()->json($restaurants);

@@ -26,7 +26,7 @@ class Restaurant extends Model
         'preparation_time',
         'cuisine',
         'price_range',
-        'rating',
+        'average_rating',
         'is_open',
     ];
 
@@ -44,4 +44,27 @@ class Restaurant extends Model
     {
         return $this->hasMany(Order::class);
     }
+
+    public function ratings()
+    {
+        return $this->hasMany(Rating::class);
+    }
+
+    public function getAverageRatingAttribute()
+    {
+        return round($this->ratings()->avg('rating'), 2);
+    }
+
+    public function scopeOpen($query)
+    {
+        return $query->where('is_open', true);
+    }
+
+    public function scopeClose($query)
+    {
+        return $query->where('is_open', false);
+    }
+
+    protected $appends = ['average_rating'];
+
 }

@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderedItemsController;
+use App\Http\Controllers\RatingsController;
 use App\Http\Controllers\RecommendationController;
 use App\Http\Controllers\RestaurantController;
 use App\Http\Controllers\TransactionController;
@@ -78,6 +79,10 @@ Route::get('order-items/{restaurant_id}', [OrderedItemsController::class, 'showB
 Route::post('order-items/{restaurant_id}/create', [OrderedItemsController::class, 'store']);
 Route::put('order-items/{restaurant_id}/{order_id}/{id}/update', [OrderedItemsController::class, 'update']);
 Route::delete('order-items/{restaurant_id}/{order_id}/{id}/delete', [OrderedItemsController::class, 'destroy']);
+
+// * Rating
+Route::post('rate/{restaurant_id}/{order_id}', [RatingsController::class, 'store']);
+Route::put('rate/{id}', [RatingsController::class, 'update']);
 
 // ! Admin Indexes
 // * Restaurant

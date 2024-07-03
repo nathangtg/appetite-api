@@ -19,8 +19,18 @@ class RestaurantController extends Controller
      */
     public function index(Request $request)
     {
-        return response()->json(Restaurant::all(), 200);
+        // Get all restaurants with their ratings
+        $restaurants = Restaurant::with('ratings')->get();
+
+        // Add average rating to each restaurant
+        $restaurants->each(function ($restaurant) {
+            $restaurant->average_rating = $restaurant->ratings()->avg('rating');
+        });
+
+        // Return the restaurants with their average ratings and comments
+        return response()->json($restaurants, 200);
     }
+
 
     /**
      * Store a newly created resource in storage.
@@ -81,7 +91,8 @@ class RestaurantController extends Controller
         return response()->json(['error' => 'You are not authorized to create a restaurant'], 403);
     }
 
-    public function recentOrderedRestaurants(Request $request, User $user) {
+    public function recentOrderedRestaurants(Request $request)
+    {
         // Authenticate the user
         $user = $request->user();
 
@@ -95,9 +106,14 @@ class RestaurantController extends Controller
         $restaurantIds = $orders->pluck('restaurant_id')->unique();
 
         // Fetch the restaurants based on the restaurant IDs
-        $restaurants = Restaurant::whereIn('id', $restaurantIds)->get();
+        $restaurants = Restaurant::whereIn('id', $restaurantIds)->with('ratings')->get();
 
-        // Return the restaurants
+        // Add average rating to each restaurant
+        $restaurants->each(function ($restaurant) {
+            $restaurant->average_rating = $restaurant->ratings()->avg('rating');
+        });
+
+        // Return the restaurants with their average ratings
         return response()->json($restaurants, 200);
     }
 

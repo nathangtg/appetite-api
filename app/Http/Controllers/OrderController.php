@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\OrderPlacedMail;
+use App\Models\Menu;
 use App\Models\Order;
 use App\Models\OrderedItems;
 use App\Models\Restaurant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class OrderController extends Controller
@@ -43,69 +47,158 @@ class OrderController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        // Validate if user is authenticated
-        if (Auth::check()) {
-            // Validate the request data for order creation
-            $validator = Validator::make($request->all(), [
-                'email' => 'required',
-                'status' => 'required',
-                'order_type' => 'required',
-                'payment_method' => 'required',
-                'payment_status' => 'required',
-                'items' => 'required|array|min:1',
-                'items.*.menu_id' => 'required|exists:menus,id',
-                'items.*.quantity' => 'required|integer|min:1',
-                'items.*.price' => 'required|numeric|min:0',
-            ]);
+    // public function store(Request $request)
+    // {
+    //     // Validate if user is authenticated
+    //     if (Auth::check()) {
+    //         // Validate the request data for order creation
+    //         $validator = Validator::make($request->all(), [
+    //             'email' => 'required',
+    //             'status' => 'required',
+    //             'order_type' => 'required',
+    //             'payment_method' => 'required',
+    //             'payment_status' => 'required',
+    //         'items' => 'required|array|min:1',
+    //             'items.*.menu_id' => 'required|exists:menus,id',
+    //             'items.*.quantity' => 'required|integer|min:1',
+    //             'items.*.price' => 'required|numeric|min:0',
+    //         ]);
 
-            // Check if validation fails
-            if ($validator->fails()) {
-                return response()->json(['error' => $validator->errors()], 400);
-            }
+    //         // Check if validation fails
+    //         if ($validator->fails()) {
+    //             return response()->json(['error' => $validator->errors()], 400);
+    //         }
 
-            // Calculate total
-            $total = 0;
-            foreach ($request->input('items') as $item) {
-                $total += $item['quantity'] * $item['price'];
-            }
+    //         // Calculate total
+    //         $total = 0;
+    //         foreach ($request->input('items') as $item) {
+    //             $total += $item['quantity'] * $item['price'];
+    //         }
 
-            // Create a new order with the calculated total
-            $order = Order::create([
-                'restaurant_id' => $request->route('restaurant_id'),
-                'user_id' => Auth::id(),
-                'email' => $request->input('email'),
-                'total' => $total,
-                'status' => $request->input('status'),
-                'order_type' => $request->input('order_type'),
-                'payment_method' => $request->input('payment_method'),
-                'payment_status' => $request->input('payment_status'),
-            ]);
+    //         // Create a new order with the calculated total
+    //         $order = Order::create([
+    //             'restaurant_id' => $request->route('restaurant_id'),
+    //             'user_id' => Auth::id(),
+    //             'email' => $request->input('email'),
+    //             'total' => $total,
+    //             'status' => $request->input('status'),
+    //             'order_type' => $request->input('order_type'),
+    //             'payment_method' => $request->input('payment_method'),
+    //             'payment_status' => $request->input('payment_status'),
+    //         ]);
 
-            // If no items are sent, return an error
-            if (empty($request->input('items'))) {
-                return response()->json(['error' => 'At least one item is required for the order'], 400);
-            }
+    //         // If no items are sent, return an error
+    //         if (empty($request->input('items'))) {
+    //             return response()->json(['error' => 'At least one item is required for the order'], 400);
+    //         }
 
-            // Create ordered items for the order
-            foreach ($request->input('items') as $item) {
-                OrderedItems::create([
-                    'order_id' => $order->id,
-                    'menu_id' => $item['menu_id'],
-                    'quantity' => $item['quantity'],
-                    'price' => $item['price'],
-                    'total' => $item['quantity'] * $item['price'],
-                    'note' => $item['note'] ?? '',
+    //         // Create ordered items for the order
+    //         $orderItems = [];
+    //         foreach ($request->input('items') as $item) {
+    //             $orderItem = OrderedItems::create([
+    //                 'order_id' => $order->id,
+    //                 'menu_id' => $item['menu_id'],
+    //                 'quantity' => $item['quantity'],
+    //                 'price' => $item['price'],
+    //                 'total' => $item['quantity'] * $item['price'],
+    //                 'note' => $item['note'] ?? '',
+    //             ]);
+    //             $orderItems[] = $orderItem;
+    //         }
+
+    //         Mail::to($request->input('email'))->send(new OrderPlacedMail($order, $orderItems));
+
+    //         // Return the created order
+    //         return response()->json(['order' => $order], 201);
+    //     } else {
+    //         return response()->json(['error' => 'Unauthorized'], 401);
+    //     }
+    // }
+
+        public function store(Request $request)
+        {
+            // Validate if user is authenticated
+            if (Auth::check()) {
+                // Validate the request data for order creation
+                $validator = Validator::make($request->all(), [
+                    'email' => 'required',
+                    'status' => 'required',
+                    'order_type' => 'required',
+                    'payment_method' => 'required',
+                    'payment_status' => 'required',
+                    'items' => 'required|array|min:1',
+                    'items.*.menu_id' => 'required|exists:menus,id',
+                    'items.*.quantity' => 'required|integer|min:1',
+                    'items.*.price' => 'required|numeric|min:0',
                 ]);
-            }
 
-            // Return the created order
-            return response()->json(['order' => $order], 201);
-        } else {
-            return response()->json(['error' => 'Unauthorized'], 401);
+                // Check if validation fails
+                if ($validator->fails()) {
+                    return response()->json(['error' => $validator->errors()], 400);
+                }
+
+                // Calculate total
+                $total = 0;
+                foreach ($request->input('items') as $item) {
+                    $total += $item['quantity'] * $item['price'];
+                }
+
+                // Create a new order with the calculated total
+                $order = Order::create([
+                    'restaurant_id' => $request->route('restaurant_id'),
+                    'user_id' => Auth::id(),
+                    'email' => $request->input('email'),
+                    'total' => $total,
+                    'status' => $request->input('status'),
+                    'order_type' => $request->input('order_type'),
+                    'payment_method' => $request->input('payment_method'),
+                    'payment_status' => $request->input('payment_status'),
+                ]);
+
+                // If no items are sent, return an error
+                if (empty($request->input('items'))) {
+                    return response()->json(['error' => 'At least one item is required for the order'], 400);
+                }
+
+                // Create ordered items for the order with menu names
+                $orderItems = [];
+                foreach ($request->input('items') as $item) {
+
+                    // Fetch menu name using join
+                    $menu = Menu::where('id', $item['menu_id'])->first();
+
+                    // Log error if menu not found
+
+                    if (!$menu) {
+                        return response()->json(['error' => 'Menu not found'], 404);
+                    }
+
+                    $orderItem = OrderedItems::create([
+                        'order_id' => $order->id,
+                        'menu_id' => $item['menu_id'],
+                        'quantity' => $item['quantity'],
+                        'price' => $item['price'],
+                        'total' => $item['quantity'] * $item['price'],
+                        'note' => $item['note'] ?? '',
+                    ]);
+
+                    // Add menu name to order item
+                    $orderItem->menu_name = $menu->name;
+
+                    $orderItems[] = $orderItem;
+                }
+
+                Log::info($orderItems);
+
+                // Send email with order details
+                Mail::to($request->input('email'))->send(new OrderPlacedMail($order, $orderItems));
+
+                // Return the created order
+                return response()->json(['order' => $order], 201);
+            } else {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
         }
-    }
 
     /**
      * Display the specified resource.
@@ -280,24 +373,31 @@ class OrderController extends Controller
      * Display the specified resource by user
      */
 
-    public function userOrders(Request $request)
-    {
-        // Validate if user is authenticated
-        if (Auth::check()) {
-            // Get the user's orders
-            $orders = Order::where('user_id', Auth::id())->get();
+     public function userOrders(Request $request)
+     {
+         // Validate if user is authenticated
+         if (Auth::check()) {
+             // Get the user's orders
+             $orders = Order::where('user_id', Auth::id())->get();
 
-            // Check the orders length
-            if (count($orders) === 0) {
-                return response()->json(['error' => 'No orders found'], 404);
-            }
+             // Check the orders length
+             if ($orders->isEmpty()) {
+                 return response()->json(['error' => 'No orders found'], 404);
+             }
 
-            // Return the user's orders
-            return response()->json(['orders' => $orders], 200);
-        } else {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
-    }
+             // Check if each order has been rated
+             $ordersWithRating = $orders->map(function ($order) {
+                 $order->is_rated = $order->ratings()->exists();
+                 return $order;
+             });
+
+             // Return the user's orders with is_rated flag
+             return response()->json(['orders' => $ordersWithRating], 200);
+         } else {
+             return response()->json(['error' => 'Unauthorized'], 401);
+         }
+     }
+
 
     // ! Get order and ordered items
     public function getOrderAndItems(Request $request, Order $order)
