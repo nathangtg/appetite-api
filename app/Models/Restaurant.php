@@ -28,7 +28,9 @@ class Restaurant extends Model
         'price_range',
         'average_rating',
         'is_open',
+        'number_of_tables',
     ];
+
 
     public function user()
     {

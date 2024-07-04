@@ -19,6 +19,7 @@ class Order extends Model
         'email',
         'total',
         'status',
+        'table_number',
         'order_type',
         'payment_method',
         'payment_status',

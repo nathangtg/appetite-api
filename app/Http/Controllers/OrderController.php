@@ -115,91 +115,101 @@ class OrderController extends Controller
     //     }
     // }
 
-        public function store(Request $request)
-        {
-            // Validate if user is authenticated
-            if (Auth::check()) {
-                // Validate the request data for order creation
-                $validator = Validator::make($request->all(), [
-                    'email' => 'required',
-                    'status' => 'required',
-                    'order_type' => 'required',
-                    'payment_method' => 'required',
-                    'payment_status' => 'required',
-                    'items' => 'required|array|min:1',
-                    'items.*.menu_id' => 'required|exists:menus,id',
-                    'items.*.quantity' => 'required|integer|min:1',
-                    'items.*.price' => 'required|numeric|min:0',
-                ]);
+    public function store(Request $request)
+    {
+        // Validate if user is authenticated
+        if (Auth::check()) {
+            // Validate the request data for order creation
+            $validator = Validator::make($request->all(), [
+                'email' => 'required|email',
+                'status' => 'required',
+                'order_type' => 'required',
+                'payment_method' => 'required',
+                'payment_status' => 'required',
+                'table_number' => [
+                    'required_if:order_type,dine-in',
+                    'integer',
+                    'min:1',
+                    function ($attribute, $value, $fail) use ($request) {
+                        $restaurant = Restaurant::find($request->route('restaurant_id'));
+                        if ($restaurant && $value > $restaurant->number_of_tables) {
+                            $fail('The selected table number is invalid.');
+                        }
+                    },
+                ],
+                'items' => 'required|array|min:1',
+                'items.*.menu_id' => 'required|exists:menus,id',
+                'items.*.quantity' => 'required|integer|min:1',
+                'items.*.price' => 'required|numeric|min:0',
+            ]);
 
-                // Check if validation fails
-                if ($validator->fails()) {
-                    return response()->json(['error' => $validator->errors()], 400);
-                }
-
-                // Calculate total
-                $total = 0;
-                foreach ($request->input('items') as $item) {
-                    $total += $item['quantity'] * $item['price'];
-                }
-
-                // Create a new order with the calculated total
-                $order = Order::create([
-                    'restaurant_id' => $request->route('restaurant_id'),
-                    'user_id' => Auth::id(),
-                    'email' => $request->input('email'),
-                    'total' => $total,
-                    'status' => $request->input('status'),
-                    'order_type' => $request->input('order_type'),
-                    'payment_method' => $request->input('payment_method'),
-                    'payment_status' => $request->input('payment_status'),
-                ]);
-
-                // If no items are sent, return an error
-                if (empty($request->input('items'))) {
-                    return response()->json(['error' => 'At least one item is required for the order'], 400);
-                }
-
-                // Create ordered items for the order with menu names
-                $orderItems = [];
-                foreach ($request->input('items') as $item) {
-
-                    // Fetch menu name using join
-                    $menu = Menu::where('id', $item['menu_id'])->first();
-
-                    // Log error if menu not found
-
-                    if (!$menu) {
-                        return response()->json(['error' => 'Menu not found'], 404);
-                    }
-
-                    $orderItem = OrderedItems::create([
-                        'order_id' => $order->id,
-                        'menu_id' => $item['menu_id'],
-                        'quantity' => $item['quantity'],
-                        'price' => $item['price'],
-                        'total' => $item['quantity'] * $item['price'],
-                        'note' => $item['note'] ?? '',
-                    ]);
-
-                    // Add menu name to order item
-                    $orderItem->menu_name = $menu->name;
-
-                    $orderItems[] = $orderItem;
-                }
-
-                Log::info($orderItems);
-
-                // Send email with order details
-                Mail::to($request->input('email'))->send(new OrderPlacedMail($order, $orderItems));
-
-                // Return the created order
-                return response()->json(['order' => $order], 201);
-            } else {
-                return response()->json(['error' => 'Unauthorized'], 401);
+            // Check if validation fails
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->errors()], 400);
             }
-        }
 
+            // Calculate total
+            $total = 0;
+            foreach ($request->input('items') as $item) {
+                $total += $item['quantity'] * $item['price'];
+            }
+
+            // Create a new order with the calculated total
+            $order = Order::create([
+                'restaurant_id' => $request->route('restaurant_id'),
+                'user_id' => Auth::id(),
+                'email' => $request->input('email'),
+                'total' => $total,
+                'status' => $request->input('status'),
+                'order_type' => $request->input('order_type'),
+                'payment_method' => $request->input('payment_method'),
+                'payment_status' => $request->input('payment_status'),
+                'table_number' => $request->input('table_number', null),
+            ]);
+
+            // If no items are sent, return an error
+            if (empty($request->input('items'))) {
+                return response()->json(['error' => 'At least one item is required for the order'], 400);
+            }
+
+            // Create ordered items for the order with menu names
+            $orderItems = [];
+            foreach ($request->input('items') as $item) {
+
+                // Fetch menu name using join
+                $menu = Menu::where('id', $item['menu_id'])->first();
+
+                // Log error if menu not found
+                if (!$menu) {
+                    return response()->json(['error' => 'Menu not found'], 404);
+                }
+
+                $orderItem = OrderedItems::create([
+                    'order_id' => $order->id,
+                    'menu_id' => $item['menu_id'],
+                    'quantity' => $item['quantity'],
+                    'price' => $item['price'],
+                    'total' => $item['quantity'] * $item['price'],
+                    'note' => $item['note'] ?? '',
+                ]);
+
+                // Add menu name to order item
+                $orderItem->menu_name = $menu->name;
+
+                $orderItems[] = $orderItem;
+            }
+
+            Log::info($orderItems);
+
+            // Send email with order details
+            Mail::to($request->input('email'))->send(new OrderPlacedMail($order, $orderItems));
+
+            // Return the created order
+            return response()->json(['order' => $order], 201);
+        } else {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+    }
     /**
      * Display the specified resource.
      */
