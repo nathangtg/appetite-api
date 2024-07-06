@@ -401,6 +401,12 @@ class OrderController extends Controller
                  return $order;
              });
 
+            //  Fetch the restaurant name for each order
+            foreach ($ordersWithRating as $order) {
+                $restaurant = Restaurant::find($order->restaurant_id);
+                $order->restaurant_name = $restaurant->name;
+            }
+
              // Return the user's orders with is_rated flag
              return response()->json(['orders' => $ordersWithRating], 200);
          } else {
