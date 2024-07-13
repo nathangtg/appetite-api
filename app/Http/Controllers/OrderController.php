@@ -329,6 +329,11 @@ class OrderController extends Controller
         // Save the changes to the order
         $order->save();
 
+        // Log the request
+        Log::info($request->all());
+
+        Log::info($order);
+
         // Return a success response
         return response()->json(['message' => 'Order updated successfully', 'updated' => $order], 200);
     }
