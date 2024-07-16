@@ -49,11 +49,11 @@ class MenuController extends Controller
 
             // Validate the request data
             $validator = Validator::make($request->all(), [
-                'name' => 'required',
-                'category' => 'required',
-                'description' => 'required',
-                'price' => 'required',
-                'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'name' => 'required|string|max:255',
+                'category' => 'required|string|max:255',
+                'description' => 'required|string',
+                'price' => 'required|numeric|min:0',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
 
             // Check if validation fails
@@ -63,17 +63,16 @@ class MenuController extends Controller
 
             // Prepare data for creating the menu
             $data = $request->only(['name', 'category', 'description', 'price']);
+            $data['restaurant_id'] = $restaurant_id;
 
             // Handle image upload
             if ($request->hasFile('image')) {
-                // Upload new image
                 $imagePath = $request->file('image')->store('public/menus');
-                $imagePath = url(Storage::url($imagePath));
-                $data['image'] = $imagePath;
+                $data['image'] = url(Storage::url($imagePath));
             }
 
             // Create the menu
-            $menu = Menu::create(array_merge($data, ['restaurant_id' => $restaurant_id]));
+            $menu = Menu::create($data);
 
             // Return a success response
             return response()->json(['menu' => $menu], 201);

@@ -84,6 +84,7 @@ Route::delete('order-items/{restaurant_id}/{order_id}/{id}/delete', [OrderedItem
 Route::post('rate/{restaurant_id}/{order_id}', [RatingsController::class, 'store']);
 Route::put('rate/{id}', [RatingsController::class, 'update']);
 
+
 // ! Admin Indexes
 // * Restaurant
 Route::get('admin/restaurants', [RestaurantController::class, 'adminIndex']);
