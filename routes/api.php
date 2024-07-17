@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -37,8 +38,8 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 return $request->user();
 });
 
-Route::middleware(['auth:sanctum'])->group(function () {
-// ! Deauthentication
+Route::group(['middleware' => ['auth', 'user']], function () {
+    // ! Deauthentication
 Route::post('logout', [AuthenticatedSessionController::class, 'destroy']);
 
 // * User OWN CRUD
@@ -96,3 +97,6 @@ Route::get('recommendations', [RecommendationController::class, 'index']);
 
 Route::get('/restaurants/{id}', [RestaurantController::class, 'show']);
 
+Route::group(['middleware' => ['auth', 'admin']], function () {
+    Route::get('admin-home', [AdminController::class, 'getUsers'])->name('admin.home');
+});
